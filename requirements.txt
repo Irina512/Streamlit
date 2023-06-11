@@ -1,6 +1,0 @@
-streamlit
-matplotlib==3.4.3
-matplotlib.pyplot
-numpy
-pandas
-matplotlib.colors
