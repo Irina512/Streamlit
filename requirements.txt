@@ -1,13 +1,7 @@
 streamlit
-<<<<<<< HEAD
-=======
 matplotlib==3.4.3
->>>>>>> 9b3db2a23633be9804674e020805597673b70143
 matplotlib.pyplot
 numpy
 pandas
 matplotlib.colors
-<<<<<<< HEAD
 altair==4.0
-=======
->>>>>>> 9b3db2a23633be9804674e020805597673b70143
