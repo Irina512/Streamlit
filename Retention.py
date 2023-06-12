@@ -1,63 +1,91 @@
 import streamlit as st
-import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 import numpy as np
 import pandas as pd
-import matplotlib.colors as mcolors
 
-# Set default retention rates and number of years
+# Set default parameters
 default_retention_rates = [0.5, 0.7, 0.9]
 default_num_years = 5
 
-# Create a custom color map from green to red based on quartiles
-color_map = mcolors.LinearSegmentedColormap.from_list('green_to_red', ['green', 'yellow', 'red'])
+title = "Retention/burn rate and LTV"
+subheader = "This is a simple model that shows how customer retention rates affect LTV"
 
-def calculate_powers(retention_rates, num_years):
-    powers = np.arange(0, num_years + 1)
-    results_data = []
+intro = '''Say, we have three companies A, B and C that all have 100 customers and expect to renew
+at 50, 70 and 90 percent respectively.\n
 
-    # Create the figure object
-    fig, ax = plt.subplots(figsize=(8, 6))
+How will their customer bases change over several years? We use 50, 70, and 90 percent,
+but feel free to change them.  \n
+Also, we will use a 5-year horizon, but, again, you can extend it up to 10.'''
 
-    for idx, rate in enumerate(retention_rates):
-        results = np.round((rate ** powers) * 100).astype(int)
-        quartiles = np.percentile(results, [25, 50, 75])
-        colors = [color_map((val - quartiles[0]) / (quartiles[2] - quartiles[0])) for val in results]
+sum_of_geom_progression=''' The average customer lifetime is 1/churn rate, or 1/(1-retention rate). If it does
+not seem intuitive, it is probably because it comes from high school algebra* (see caption for more). \n 
+In plain English the average customer lifetime is the number of years a customer will stay with a company.
 
-        ax.plot(powers, results, label=f'Retention Rate: {rate}', color=colors[0])
+Using our example of 100 customers, if half of customer leave every year meaning the average customer lifeime is
+is 2 years, the inital 100 customers will generate revenue of 2 years, or in words words, will be equivalent 
+to having 200 customers spread over time.'''
 
-        # Append results to the data list
-        results_data.append([f'Retention Rate: {rate}'] + results.tolist())
+body=''' This chart shows how dramatically different customer bases will look after 5 years with
+different retention rate. Company that loses half of its customer yearly will have fewer customers after just 
+1 year vs the company that loses only 10 percent even after 5 years.'''
+caption=''' If you start with 100 customers and churn 50 percent every year, then the customer pool wiill
+go from 100 to 50, to 25, to 13, etc. To add up all customers you expect to have over the years, i.e.
+100+50+25+13 ..., we use the formula for the sum of geometric progression, where the common ratio is less than 1,
+or using retention rate, it is 1/(1-retention rate), or 1/(churn rate), or 2 years.  \n
+'''
 
-    plt.xlabel('Years', fontsize=12)
-    plt.ylabel('Customers', fontsize=12)
-    plt.title('Customer Retention Over Years', fontsize=14)
-    plt.legend()
+# Helper function to calculate customers left for each year (initial base is 100 customers)
+def calculate_customers_left(retention_rate, num_years):
+    customers_left = []
+    for i in range(num_years + 1):
+        retention_rate_power = retention_rate ** i
+        customers_left_year = round(retention_rate_power * 100)
+        customers_left.append(customers_left_year)
+    return customers_left
 
-    # Set x-axis tick locations and labels
-    plt.xticks(powers)
 
-    # Set the y-axis lower limit to zero
-    plt.ylim(0, None)
+st.subheader(subheader)
+st.write("---")
+st.markdown(intro)
+cols = st.columns(3)
 
-    # Display the line chart
-    st.pyplot(fig)
+# Input parameters
+retention_rates = [
+    cols[0].number_input("Retention Rate 1:", min_value=0.0, max_value=1.0, value=default_retention_rates[0], step=0.01),
+    cols[1].number_input("Retention Rate 2:", min_value=0.0, max_value=1.0, value=default_retention_rates[1], step=0.01),
+    cols[2].number_input("Retention Rate 3:", min_value=0.0, max_value=1.0, value=default_retention_rates[2], step=0.01)
+]
+num_years_input = st.slider("Number of Years:", min_value=1, max_value=10, value=default_num_years, step=1)
 
-    # Create the results table
-    results_df = pd.DataFrame(results_data, columns=['Retention Rate'] + powers.tolist())
-    results_df = results_df.set_index('Retention Rate')
-    st.table(results_df)
+# Calculate retention rates
+customers_left = []
+for rate in retention_rates:
+    customers_left.append(calculate_customers_left(rate, num_years_input))
+st.markdown(sum_of_geom_progression)
 
-def main():
-    # Ask for user input
-    retention_rates = [
-        st.number_input("Retention Rate 1:", min_value=0.0, max_value=1.0, value=default_retention_rates[0], step=0.01),
-        st.number_input("Retention Rate 2:", min_value=0.0, max_value=1.0, value=default_retention_rates[1], step=0.01),
-        st.number_input("Retention Rate 3:", min_value=0.0, max_value=1.0, value=default_retention_rates[2], step=0.01)
-    ]
-    num_years = st.number_input("Number of Years:", min_value=1, max_value=10, value=default_num_years, step=1)
 
-    # Calculate powers and display the line chart and results table
-    calculate_powers(retention_rates, num_years)
+st.subheader("Customer Base Over Time (chart)")
+# Plotting the line chart
+fig = go.Figure()
+for i, rate in enumerate(customers_left):
+    fig.add_trace(
+        go.Scatter(
+            x=list(range(num_years_input + 1)),
+            y=rate,
+            mode="lines",
+            name=f"Retention rate {retention_rates[i]}",
+        )
+    )
 
-if __name__ == "__main__":
-    main()
+st.plotly_chart(fig)
+
+# Results table
+results_data = np.array(customers_left)
+df = pd.DataFrame(results_data, columns=list(range(num_years_input + 1)))
+df.index = [f"Retention Rate {rate}" for rate in retention_rates]
+df.index.name = "Years"
+
+st.markdown(body)
+st.subheader("Customer Base Over Time (table)")
+st.dataframe(df.style.format("{:.0f}"))
+st.caption(caption)
