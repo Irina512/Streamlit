@@ -6,42 +6,103 @@ import pandas as pd
 # Set default parameters
 default_retention_rates = [50, 70, 90]
 default_num_years = 5
+default_ave_rev=100
 
-title = "Customer retention/burn rate and LTV"
+# Customizable model parameters
+st.sidebar.title('Model assumptions')
+retention_rates = [
+    st.sidebar.number_input("Retention in Company A:", min_value=1, max_value=100, value=default_retention_rates[0], step=1),
+    st.sidebar.number_input("Retention in Company B:", min_value=1, max_value=100, value=default_retention_rates[1], step=1),
+    st.sidebar.number_input("Retention in Company C:", min_value=1, max_value=100, value=default_retention_rates[2], step=1)
+]
+num_years_input = st.sidebar.slider("Number of Years:", min_value=1, max_value=10, value=default_num_years, step=1)
+ave_rev= st.sidebar.number_input("Average customer spend, $:",value=default_ave_rev, step=1),
 
-subheader = "This is a simple model that shows how customer retention rates affect LTV"
+title = "Customer Retention And LTV, Cohort Analysis"
 
-intro = '''Say, we have three companies A, B and C that all have 100 customers
-and expect to renew at 50, 70 and 90 percent respectively, and we'll use a year as the renewal period.
-Let's see what will happen to the initial 100 customers over 5 years.\n
+summary="This simple model focuses on the positive, but non-linear relationship between retention rates and LTV\
+As expected, LTV goes up as retention rate improves, but disproportionaly more at higher retention levels."
 
-These are just our assumptions for this models, but you can change the parameters here:'''
-
-talk_about_customer_base_chart = '''If we plot how many customer each of the three companies
-will have after 1 year, then 2, etc, given their respective retention rates, we will see dramatic
-differences. After just one year the company with 50 percent churn will have fewer customers than
-the company that keeps 90 percent of its customers after 5 years.'''
-
-sum_of_geom_progression = '''The average customer lifetime is 1/churn rate, or 1/(1-retention rate). If it does
-not seem intuitive, it is probably because it comes from high school algebra* (see caption for more). \n 
-In plain English, the average customer lifetime is the number of years a customer will stay with a company.
-
-Using a 50 percent retention rate, the life time value of a customer is 1/(1-retention rate),
-or 1/(1-0.5), or 2 years. 
-
-Using our example of 100 customers, if half of the customers leave every year meaning the average customer lifetime is
-2 years, the initial 100 customers will generate revenue for 2 years. In other words, it will be equivalent 
-to having 200 customers spread over time.'''
-
-body = '''This chart shows how dramatically different customer bases will look after 5 years with
-different retention rates. A company that loses half of its customers yearly will have fewer customers after just 
-1 year compared to the company that loses only 10 percent even after 5 years.'''
-
-caption = '''If you start with 100 customers and churn 50 percent every year, then the customer pool will
-go from 100 to 50, to 25, to 13, etc. To add up all the customers you expect to have over the years, i.e.
-100+50+25+13 ..., we use the formula for the sum of a geometric progression, where the common ratio is less than 1,
-or using the retention rate, it is 1/(1-retention rate), or 1/(churn rate), or 2 years. \n
+intro = '''Suppose we have three companies, A, B, and C, each initially having 100 customers. 
+These companies anticipate renewal rates of 50%, 70%, and 90% respectively, with a renewal period 
+of one year and the average annual revenue per customer of $100. 
+These are our assumptions for this model, but feel free to change them in the sidebar*.
 '''
+
+talk_about_customer_base_chart = '''First, let's look at the number of customers each company will have year
+after year if their retention rates remain the same. 
+
+Hover over the nodes to see the numbers.'''
+
+explain_customer_base_chart = '''All companies will lose customers over time but at very different speeds.
+Due to the compounding nature of the loss, the company will the lowest retention will lose customers the fastest.
+
+Company A will lose half of its customers in the first year, while Company C will still have more than half
+of its customers after 5 years.
+'''
+
+explain_life_span=''' While the initial 100 customers stay on with the three companies at different rates,
+all three companies have some customers every year for a while. If we add up all those future customers,
+we will arrive at the customer life span, measured in renewal periods: years, months, weeks, etc. Math aside,
+the customer life span is the number of times the initital group of customers will renew.
+
+Customer life span is calculated as 1/(1 - retention_rate), or 1/churn_rate.
+
+For 50 percent retention rate, customer life span is 1/(1-.5)= 2 years, for 70 percent- 3.3 year, and for
+90 percent- 10 years. In other words, the same size group of 100 customers will generate
+2 years worth of revenue for company A, 3.3 years for company B and 10 years for company C.'''
+
+
+explain_LTV = '''Next, let's introduce the average annual revenue per customer to translate the customer
+life span into dollars. LTV, the customer lifetime value, is the total amount of revenue a company expects
+to generate per customer over the entire period they stay with the company for a given pool of customers with a
+certain retention rate.
+
+A simple way to calculate LTV is to multiply the average annual revenue per customer by the customer lifespan. 
+'''
+
+expander = '''Learn more about how customer life span is calculated (a throwback to high school algebra!)'''
+
+formula_explanation=''' As the chart above shows, initial 100 customers with 50 percent retention will become 50, then 25, then 13, etc.
+If we add them all up, i.e. 100+50+25+13+., we will know the total number of customers spread over time. 
+
+Such a sequence is called geometric progression where each element is the product of the previous element and a constant.
+When that constant is less than 1, meaning each sequence element is less than the previous one, it is possible to calculate the sum of 
+infinite number of elements as the Nth element approaches zero. The formula is 1/(1-r), where r is the common ratio, or the retention rate. 
+
+'''
+
+tie_retention_to_ltv = '''Now let's zoom out and look at the continuum of retention rate and their corresponding LTVs, plotted below.'''
+
+talk_about_retention_ltv = '''What do we see in this plot? The relationship between the retention rates and
+customer life spans is non-linear. Incremental improvement in retention has a much higher impact on customer
+life span starting at 80 percent, or 20 percent churn. The most dramatic increase is from 90 to 95 percent retention, which
+doubles customer life span. LTV increases very slowly at low retention rates.
+A 5 percent improvement in retention from 35 to 40 percent only increases LTV by 0.2 years, or 2.5 months.
+
+However, a 5 percent improvement in retention from 75 to 80 percent increases LTV by a year.
+A 5 percent improvement in retention from 85 to 90 percent increases LTV by 3.3 years.
+
+There are different ways to look at it, but the highest return on improving retention rates pays off 
+the greatest for companies that already have higher retention rates. 
+
+Likewise, retention rates below 60 percent alone do not offer an "easy" way to generate money. In order to
+grow customer base and revenue, companies with lower retention rates must attract new customers.'''
+
+disclaimer=''' To simplify the model to empathise the non-linear relationship between changes in retention rates
+vs LTVs we made a few assumptions. 
+
+- Focusing on one group of customers over time, we do not mix with the later customers. In real world, it's a mix of old and new customers.
+- We keep retention rates constant throughout the analysis period. In real world, retention rates will not stay the same for the same customers.
+Those who stay on may develop a stronger bond to the company, be exposed to product improvement, new features, etc meaning their retention rate
+might not drop as fast as in the first year.
+- We keep annual average revenue per customer constant. In real world it may vary depending on the product, upsell, etc.
+- We exclude the discount rate from the LTV calculation. All future cash is not discounted. In real world, 100 dollars next year is less than 100 dollars today.
+'''
+
+
+
+
 
 # Helper function to calculate customers left for each year (initial base is 100 customers)
 def calculate_customers_left(retention_rate, num_years):
@@ -52,19 +113,58 @@ def calculate_customers_left(retention_rate, num_years):
         customers_left.append(customers_left_year)
     return customers_left
 
+
+
+# Function to plot customer base over time 
+def plot_base_over_time(x, rate):
+    fig = go.Figure()
+    for i, rate in enumerate(customers_left):
+        fig.add_trace(
+            go.Scatter(
+                x=x,
+                y=rate,
+                mode="markers+lines",
+                name=f"Company {chr(65 + i)} (Retention: {retention_rates[i]}%)",  # Add retention rate to the legend
+                hovertemplate=
+                '%{y:.0f} customers left after' +
+                '<br> %{x:.f} years <br><extra></extra>'
+            )
+        )
+
+
+
+    # Set the layout properties
+    fig.update_layout(
+        title='Customer Base Over Time',
+        xaxis=dict(
+            title='Years',
+            tickvals=x,
+            ticktext=[str(val) for val in x]
+        ),
+        yaxis=dict(
+            title='Remaining Customers'
+        ),
+        font_color="blue",
+        hoverlabel=dict(
+            bgcolor="white",
+            font_size=18,
+            font_color="black",
+            font_family="serif"
+        ),
+        legend=dict(
+            orientation="h",  # Horizontal legend
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1
+        ))
+    return fig
+
+
+
 st.title(title)
-st.subheader(subheader)
+st.write("**" + summary + "**")
 st.markdown(intro)
-cols = st.columns(3)
-
-# Input parameters
-retention_rates = [
-    cols[0].number_input("Retention in Company A:", min_value=1, max_value=100, value=default_retention_rates[0], step=1),
-    cols[1].number_input("Retention in Company B:", min_value=1, max_value=100, value=default_retention_rates[1], step=1),
-    cols[2].number_input("Retention in Company C:", min_value=1, max_value=100, value=default_retention_rates[2], step=1)
-]
-num_years_input = st.slider("Number of Years:", min_value=1, max_value=10, value=default_num_years, step=1)
-
 st.markdown("---")
 
 # Calculate retention rates
@@ -74,39 +174,36 @@ for rate in retention_rates:
 
 st.markdown(talk_about_customer_base_chart)
 
+# Generate x values for the line chart
+x = np.arange(num_years_input + 1)
+
 # Plotting the line chart
-fig = go.Figure()
-for i, rate in enumerate(customers_left):
-    fig.add_trace(
-        go.Scatter(
-            x=list(range(num_years_input + 1)),
-            y=rate,
-            mode="lines",
-            name=f"Retention rate {retention_rates[i]}%",
-        )
-    )
-fig.update_layout(
-    title='Customer Base Over Time',
-    xaxis_title='Years',
-    yaxis_title='Customers Remaining',
-    font_color="red",
-)
+base_over_time=plot_base_over_time(x,rate)
 
-st.plotly_chart(fig)
+st.plotly_chart(base_over_time)
 
-st.markdown(body)
+st.markdown(explain_customer_base_chart)
 
-st.markdown(sum_of_geom_progression)
 st.markdown("---")
 
-# Generate x values between 1 and 99
+st.markdown(explain_life_span)
+with st.expander(expander):
+    st.markdown(formula_explanation)
+
+
+st.markdown(explain_LTV)
+st.markdown("---")
+
+
+st.markdown(tie_retention_to_ltv)
+
+# Generate data to show the link between retention rates and LTV
+# Generate retention rates x with values between 1 and 99 with a step = 5
 x = np.arange(0, 100, 5)
 
-# Calculate y values using the formula y = 100 / (100 - x)
-y = 100 / (100 - x)
+# Calculate LTV values y using the formula y = 100 / (100 - x)*ave_rev
+y = 100 / (100 - x)*ave_rev
 
-# Format the hover labels as "Retention: x"
-hover_labels = [f"Retention: {x_val}" for x_val in x]
 
 # Create a figure
 fig = go.Figure()
@@ -116,7 +213,7 @@ fig.add_trace(go.Scatter(
     y=y,
     mode='markers+lines',
     hovertemplate=
-    'LTV is %{y:.1f} years' +
+    'LTV is $%{y:.1f}' +
     '<br>if retention is %{x:.f} percent <br><extra></extra>',
 ))
 
@@ -124,12 +221,12 @@ fig.add_trace(go.Scatter(
 fig.update_layout(
     title='Customer Lifetime Value',
     xaxis=dict(
-        title='Retention rate, percent',
+        title='Retention Rate (%)',
         tickvals=x,
         ticktext=[str(val) for val in x]
     ),
     yaxis=dict(
-        title='LTV, years'
+        title='LTV ($)'
     ),
     font_color="blue",
     hoverlabel=dict(
@@ -139,7 +236,9 @@ fig.update_layout(
         font_family="Rockwell"
     )
 )
-# Create Streamlit app
+
 st.plotly_chart(fig)
+
+st.markdown(talk_about_retention_ltv)
 st.markdown('---')
-st.caption(caption)
+st.caption(disclaimer)
