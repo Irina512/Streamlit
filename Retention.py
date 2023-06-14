@@ -11,17 +11,18 @@ default_ave_rev=100
 # Customizable model parameters
 st.sidebar.title('Model assumptions')
 retention_rates = [
-    st.sidebar.number_input("Retention in Company A:", min_value=1, max_value=100, value=default_retention_rates[0], step=1),
-    st.sidebar.number_input("Retention in Company B:", min_value=1, max_value=100, value=default_retention_rates[1], step=1),
-    st.sidebar.number_input("Retention in Company C:", min_value=1, max_value=100, value=default_retention_rates[2], step=1)
+    st.sidebar.number_input("Retention rate in Company A", min_value=1, max_value=100, value=default_retention_rates[0], step=1),
+    st.sidebar.number_input("Retention rate in Company B", min_value=1, max_value=100, value=default_retention_rates[1], step=1),
+    st.sidebar.number_input("Retention rate in Company C", min_value=1, max_value=100, value=default_retention_rates[2], step=1)
 ]
-num_years_input = st.sidebar.slider("Number of Years:", min_value=1, max_value=10, value=default_num_years, step=1)
-ave_rev= st.sidebar.number_input("Average customer spend, $:",value=default_ave_rev, step=1),
+num_years_input = st.sidebar.slider("Number of Years", min_value=1, max_value=10, value=default_num_years, step=1)
+ave_rev= st.sidebar.number_input("Average revenue per customer",value=default_ave_rev, step=1),
 
 title = "Customer Retention And LTV, Cohort Analysis"
 
-summary="This simple model focuses on the positive, but non-linear relationship between retention rates and LTV\
-As expected, LTV goes up as retention rate improves, but disproportionaly more at higher retention levels."
+summary = "This simple model focuses on the positive, but non-linear relationship between retention rates and LTV. \
+LTV goes up as retention rate improves, but disproportionately more at higher retention levels."
+
 
 intro = '''Suppose we have three companies, A, B, and C, each initially having 100 customers. 
 These companies anticipate renewal rates of 50%, 70%, and 90% respectively, with a renewal period 
@@ -41,25 +42,21 @@ Company A will lose half of its customers in the first year, while Company C wil
 of its customers after 5 years.
 '''
 
-explain_life_span=''' While the initial 100 customers stay on with the three companies at different rates,
-all three companies have some customers every year for a while. If we add up all those future customers,
-we will arrive at the customer life span, measured in renewal periods: years, months, weeks, etc. Math aside,
-the customer life span is the number of times the initital group of customers will renew.
+explain_life_span=''' While the initial 100 customers remain with the three companies at varying rates, all three companies will retain some customers for a period of time. By combining the future customers across all companies, we can determine the customer lifespan, which is measured in renewal periods such as years, months, or weeks. Putting math aside, the customer lifespan can be understood as the number of times the initial group of customers will renew.
 
-Customer life span is calculated as 1/(1 - retention_rate), or 1/churn_rate.
+The customer lifespan is calculated using either the formula 1/(1 - retention_rate) or 1/churn_rate.
 
-For 50 percent retention rate, customer life span is 1/(1-.5)= 2 years, for 70 percent- 3.3 year, and for
-90 percent- 10 years. In other words, the same size group of 100 customers will generate
-2 years worth of revenue for company A, 3.3 years for company B and 10 years for company C.'''
+For a 50 percent retention rate, the customer lifespan is calculated as 1/(1 - 0.5) = 2 years. Similarly, for a 70 percent retention rate, the customer lifespan is approximately 3.3 years. Finally, for a 90 percent retention rate, the customer lifespan amounts to 10 years. In other words, a group of 100 customers will generate approximately 2 years of revenue for company A, 3.3 years for company B, and 10 years for company C.'''
 
 
 explain_LTV = '''Next, let's introduce the average annual revenue per customer to translate the customer
-life span into dollars. LTV, the customer lifetime value, is the total amount of revenue a company expects
+life span into dollars. The the customer lifetime value (LTV) is the total amount of revenue a company expects
 to generate per customer over the entire period they stay with the company for a given pool of customers with a
 certain retention rate.
 
 A simple way to calculate LTV is to multiply the average annual revenue per customer by the customer lifespan. 
-'''
+
+LTV= average_annual_revenue_per_customer* customer_life_span'''
 
 expander = '''Learn more about how customer life span is calculated (a throwback to high school algebra!)'''
 
@@ -72,22 +69,26 @@ infinite number of elements as the Nth element approaches zero. The formula is 1
 
 '''
 
-tie_retention_to_ltv = '''Now let's zoom out and look at the continuum of retention rate and their corresponding LTVs, plotted below.'''
+tie_retention_to_ltv = '''Finally, let's zoom out and look at the continuum of retention rate and their corresponding LTVs, plotted below.
+
+Hover over the nodes to see the numbers.'''
 
 talk_about_retention_ltv = '''What do we see in this plot? The relationship between the retention rates and
-customer life spans is non-linear. Incremental improvement in retention has a much higher impact on customer
-life span starting at 80 percent, or 20 percent churn. The most dramatic increase is from 90 to 95 percent retention, which
+customer life spans is positive but nonlinear. Improving retetion rates leads to higher LTV regardless of the starting point,
+but incremental improvements in retention have a much higher impact on customer
+life span starting at 80 percent. The most dramatic increase is from 90 to 95 percent retention, which
 doubles customer life span. LTV increases very slowly at low retention rates.
-A 5 percent improvement in retention from 35 to 40 percent only increases LTV by 0.2 years, or 2.5 months.
 
-However, a 5 percent improvement in retention from 75 to 80 percent increases LTV by a year.
-A 5 percent improvement in retention from 85 to 90 percent increases LTV by 3.3 years.
+In our example, for company A to double LTV, it needs to improve its retention by 25 percentage points, from 50 to 75 percent. 
+For company B, it would be 15 percentage points, from 70 to 85. 
+For company C, it would be 5 percentage points, from 90 to 95 percent.
 
 There are different ways to look at it, but the highest return on improving retention rates pays off 
 the greatest for companies that already have higher retention rates. 
 
 Likewise, retention rates below 60 percent alone do not offer an "easy" way to generate money. In order to
 grow customer base and revenue, companies with lower retention rates must attract new customers.'''
+
 
 disclaimer=''' To simplify the model to empathise the non-linear relationship between changes in retention rates
 vs LTVs we made a few assumptions. 
@@ -124,7 +125,7 @@ def plot_base_over_time(x, rate):
                 x=x,
                 y=rate,
                 mode="markers+lines",
-                name=f"Company {chr(65 + i)} (Retention: {retention_rates[i]}%)",  # Add retention rate to the legend
+                name=f"Company {chr(65 + i)} (Retention {retention_rates[i]}%)",  # Add retention rate to the legend
                 hovertemplate=
                 '%{y:.0f} customers left after' +
                 '<br> %{x:.f} years <br><extra></extra>'
@@ -163,7 +164,8 @@ def plot_base_over_time(x, rate):
 
 
 st.title(title)
-st.write("**" + summary + "**")
+st.markdown(f"**{summary}**")
+st.markdown("---")
 st.markdown(intro)
 st.markdown("---")
 
@@ -192,9 +194,6 @@ with st.expander(expander):
 
 
 st.markdown(explain_LTV)
-st.markdown("---")
-
-
 st.markdown(tie_retention_to_ltv)
 
 # Generate data to show the link between retention rates and LTV
