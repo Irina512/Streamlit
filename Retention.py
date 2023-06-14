@@ -29,9 +29,7 @@ talk_about_customer_base_chart = '''First, let's look at the number of customers
 
 Hover over the nodes to see the numbers.'''
 
-explain_customer_base_chart = '''All companies will lose customers over time but at very different speeds. Due to the compounding nature of the loss, the company with the lowest retention will lose customers the fastest.
-
-For example, Company A will lose half of its customers in the first year, while Company C will still have more than half of its customers after 5 years.
+explain_customer_base_chart = '''All companies will lose customers over time but at very different speeds. For example, Company A will lose half of its customers in the first year, while Company C will still have more than half of its customers after 5 years.
 '''
 
 explain_life_span=''' Despite customer churn, all three companies will continue to have some customers for a period of time. By adding up those customers across all years, we can determine the customer lifespan for the initial customer base of 100 people, measured in renewal periods such as years, months, or weeks. Putting math aside, the customer lifespan can be thought of as the number of times the initial group of customers will be repeat customers.
@@ -41,12 +39,11 @@ The customer lifespan is calculated using either the formula 1/(1 - retention_ra
 For a 50 percent retention rate, the customer lifespan is calculated as 1/(1 - 0.5) = 2 years.
 For a 70 percent retention rate, it is 3.3 years, and for a 90 percent retention rate, it is 10 years. '''
 
-expander = '''Learn more about how customer lifespan is calculated (a throwback to high school algebra!)'''
+expander = '''Learn more about how the customer lifespan is calculated (a throwback to high school algebra!)'''
 
-formula_explanation=''' As the chart above shows, the initial 100 customers with 50 percent retention will become 50, then 25, then 13, etc. If we add them all up, i.e. 100+50+25+13+..., we will know the total number of customers spread over time. 
+formula_explanation=''' AAs the chart above shows, the initial 100 customers with a 50 percent retention rate will decrease to 50, then 25, then 13, and so on. If we add up all these numbers, i.e., 100+50+25+13+..., we can determine the total number of customers over time.
 
-Such a sequence is called geometric progression where each element is the product of the previous element and a constant. When that constant is less than 1, meaning each sequence element is less than the previous one, it is possible to calculate the sum of an infinite number of elements as the Nth element approaches zero. The formula is 1/(1-r), where r is the common ratio, or the retention rate.
-'''
+This sequence is known as a geometric progression, where each element is the product of the previous element and a constant. When that constant is less than 1, meaning that each element is smaller than the previous one, it is possible to calculate the sum of an infinite number of elements as the Nth element approaches zero. The formula for this sum is 1/(1-r), where r is the common ratio or the retention rate.'''
 
 explain_LTV = '''Next, let's introduce the average annual revenue per customer to translate the customer life span into dollars. The customer lifetime value (LTV) is the total amount of revenue a company expects to generate per customer over the entire period they stay with the company for a given pool of customers with a given retention rate.
 
